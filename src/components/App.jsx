@@ -1,10 +1,10 @@
 import { Component } from 'react';
-import { Audio } from 'react-loader-spinner';
 
 import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Modal from './Modal/Modal';
 import Button from './Button/Button';
+import Loader from './Loader/Loader';
 
 import { searchImages } from './services/pixabay-api';
 
@@ -17,6 +17,8 @@ export class App extends Component {
     page: 1,
     showModal: false,
     largeImageURL: '',
+    tags: 0,
+    total: 0,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -32,7 +34,8 @@ export class App extends Component {
       const { search, page } = this.state;
       const data = await searchImages(search, page);
       this.setState(({ items }) => ({
-        items: [...items, ...data],
+        items: [...items, ...data.hits],
+        total: data.totalHits,
       }));
     } catch (error) {
       this.setState({ error: error.message });
@@ -42,6 +45,9 @@ export class App extends Component {
   }
 
   searchImages = ({ search }) => {
+    if (search === this.state.search) {
+      return;
+    }
     this.setState({ search, items: [], page: 1 });
   };
 
@@ -64,8 +70,10 @@ export class App extends Component {
   };
 
   render() {
-    const { items, loading, showModal, largeImageURL } = this.state;
+    const { items, loading, showModal, largeImageURL, tags, page, total } =
+      this.state;
     const { searchImages, loadMore, showImage, closeModal } = this;
+    const totalPage = Math.ceil(total / 12);
 
     return (
       <>
@@ -75,23 +83,15 @@ export class App extends Component {
           <ImageGallery items={items} showImage={showImage} />
         )}
 
-        {items.length > 0 && !loading && <Button loadMore={loadMore} />}
-
-        {loading && (
-          <Audio
-            height="80"
-            width="80"
-            radius="9"
-            color="green"
-            ariaLabel="loading"
-            wrapperStyle=""
-            wrapperClass=""
-          />
+        {items.length > 0 && page < totalPage && !loading && (
+          <Button loadMore={loadMore} />
         )}
+
+        {loading && <Loader text="Loading..." />}
 
         {showModal && (
           <Modal close={closeModal}>
-            <img src={largeImageURL} alt="" />
+            <img src={largeImageURL} alt={tags} />
           </Modal>
         )}
       </>
