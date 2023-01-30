@@ -16,7 +16,7 @@ export class App extends Component {
     error: null,
     page: 1,
     showModal: false,
-    largeImageURL: '',
+    fullSize: '',
     tags: 0,
     total: 0,
   };
@@ -57,7 +57,7 @@ export class App extends Component {
 
   showImage = data => {
     this.setState({
-      largeImageURL: data,
+      fullSize: data,
       showModal: true,
     });
   };
@@ -70,7 +70,7 @@ export class App extends Component {
   };
 
   render() {
-    const { items, loading, showModal, largeImageURL, tags, page, total } =
+    const { items, loading, showModal, fullSize, tags, page, total } =
       this.state;
     const { searchImages, loadMore, showImage, closeModal } = this;
     const totalPage = Math.ceil(total / 12);
@@ -91,7 +91,7 @@ export class App extends Component {
 
         {showModal && (
           <Modal close={closeModal}>
-            <img src={largeImageURL} alt={tags} />
+            <img src={fullSize} alt={tags} />
           </Modal>
         )}
       </>
